@@ -110,7 +110,7 @@ async function pingDevice(ip) {
 // Auto-refresh
 function startAutoRefresh() {
     loadDevices();
-    setInterval(loadDevices, 10000);   // Refresh every 10 seconds
+    setInterval(loadDevices, 2000);   // Refresh every 2 seconds
 }
 
 // Initialize everything
