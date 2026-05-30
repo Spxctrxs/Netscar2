@@ -18,6 +18,10 @@ known_macs = set()
 last_scan = None
 history = []
 bandwidth_usage = defaultdict(int)
+packet_log = []
+packet_log_lock = threading.Lock()
+suspicious_ips = {}  # Track suspicious activity by IP
+packet_counts_by_ip = defaultdict(int)  # Track packet frequency
 
 sniffer_thread = None
 sniffer_running = False
@@ -52,6 +56,25 @@ def add_history(event, ip="", details=""):
 load_history()
 
 # ==================== BANDWIDTH SNIFFER ====================
+def is_suspicious_vendor(vendor):
+    """Check if vendor name indicates a scanning/hacking tool."""
+    if not vendor or vendor == "Unknown":
+        return False
+    v = vendor.lower()
+    suspicious_keywords = ['kali', 'metasploit', 'parrot', 'blackarch', 'sniffing', 'wireshark', 'tcpdump', 'nmap', 'scanning', 'attack', 'penetration']
+    return any(keyword in v for keyword in suspicious_keywords)
+
+def detect_nmap_scan_pattern(src_ip, dst_ip, port=None):
+    """Detect if this packet pattern looks like nmap activity."""
+    # Track rapid sequential connections from same source (typical of nmap)
+    if src_ip not in packet_counts_by_ip:
+        packet_counts_by_ip[src_ip] = 0
+    packet_counts_by_ip[src_ip] += 1
+    # If source is making more than 30 packets very quickly, it might be scanning
+    if packet_counts_by_ip[src_ip] > 30:
+        return True
+    return False
+
 def packet_callback(packet):
     if IP in packet:
         src = packet[IP].src
@@ -59,6 +82,25 @@ def packet_callback(packet):
         length = len(packet)
         bandwidth_usage[src] += length
         bandwidth_usage[dst] += length
+        
+        # Detect suspicious activity
+        if detect_nmap_scan_pattern(src, dst):
+            if src not in suspicious_ips:
+                suspicious_ips[src] = {"reason": "High packet frequency (potential network scan)", "count": 1}
+            else:
+                suspicious_ips[src]["count"] += 1
+        
+        packet_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "src": src,
+            "dst": dst,
+            "length": length,
+            "summary": packet.summary()
+        }
+        with packet_log_lock:
+            packet_log.append(packet_entry)
+            if len(packet_log) > 100:
+                packet_log.pop(0)
 
 def start_sniffer():
     global sniffer_thread, sniffer_running
@@ -126,6 +168,13 @@ def scan_network():
             vendor = get_vendor_from_mac(mac)
             device_type = get_device_type(vendor)
             is_new = mac != "Unknown" and mac not in known_macs
+            is_suspicious = is_suspicious_vendor(vendor) or host in suspicious_ips
+            suspicious_reason = ""
+            
+            if is_suspicious_vendor(vendor):
+                suspicious_reason = "Suspicious vendor detected"
+            if host in suspicious_ips:
+                suspicious_reason = suspicious_ips[host].get("reason", "Suspicious activity detected")
 
             if is_new and mac != "Unknown":
                 known_macs.add(mac)
@@ -136,6 +185,8 @@ def scan_network():
                     "vendor": vendor
                 })
                 save_history()
+                if is_suspicious:
+                    add_history("suspicious_device", host, suspicious_reason)
 
             new_devices.append({
                 "ip": host,
@@ -144,6 +195,8 @@ def scan_network():
                 "type": device_type,
                 "status": "online",
                 "is_new": is_new,
+                "is_suspicious": is_suspicious,
+                "suspicious_reason": suspicious_reason,
                 "last_seen": datetime.now().strftime("%H:%M:%S")
             })
 
@@ -181,6 +234,59 @@ def get_bandwidth():
         mb = round(bytes_count / (1024*1024), 2)
         result.append({"ip": ip, "usage_mb": mb, "usage_str": f"{mb} MB"})
     return jsonify(result)
+
+@app.route('/api/speed-test')
+def speed_test():
+    result = {
+        "ping_ms": None,
+        "download_mbps": None,
+        "upload_mbps": None,
+        "status": "error"
+    }
+
+    try:
+        start = datetime.now()
+        r = requests.get('https://api.ipify.org?format=json', timeout=10)
+        if r.ok:
+            result["ping_ms"] = int((datetime.now() - start).total_seconds() * 1000)
+        else:
+            result["ping_ms"] = None
+    except Exception:
+        result["ping_ms"] = None
+
+    try:
+        download_url = 'https://speed.hetzner.de/10MB.bin'
+        start = datetime.now()
+        r = requests.get(download_url, stream=True, timeout=30)
+        total_bytes = 0
+        if r.ok:
+            for chunk in r.iter_content(chunk_size=32768):
+                if chunk:
+                    total_bytes += len(chunk)
+            duration = (datetime.now() - start).total_seconds()
+            if duration > 0:
+                result["download_mbps"] = round((total_bytes * 8) / (1024*1024) / duration, 1)
+    except Exception:
+        result["download_mbps"] = None
+
+    try:
+        upload_payload = b'0' * (1024 * 1024)
+        start = datetime.now()
+        r = requests.post('https://httpbin.org/post', data=upload_payload, timeout=30)
+        if r.ok:
+            duration = (datetime.now() - start).total_seconds()
+            if duration > 0:
+                result["upload_mbps"] = round((len(upload_payload) * 8) / (1024*1024) / duration, 1)
+    except Exception:
+        result["upload_mbps"] = None
+
+    result["status"] = "ok"
+    return jsonify(result)
+
+@app.route('/api/packets')
+def get_packets():
+    with packet_log_lock:
+        return jsonify({"packets": list(packet_log[-50:])})
 
 @app.route('/api/scan', methods=['POST'])
 def trigger_scan():

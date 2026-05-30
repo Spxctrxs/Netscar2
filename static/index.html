@@ -10,124 +10,141 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --green: #00ff41;
-    --green-dim: #00aa2a;
-    --green-dark: #003311;
-    --amber: #ffb800;
-    --red: #ff3333;
-    --blue: #00cfff;
-    --bg: #000000;
-    --bg2: #050f05;
-    --bg3: #0a1a0a;
-    --border: #00ff4144;
+    --bg: #0f0f0f;
+    --bg2: #181818;
+    --bg3: #222222;
+    --border: rgba(255,255,255,0.08);
+    --text: #f7f7f7;
+    --muted: #a8a8a8;
+    --accent: #ffffff;
+    --danger: #ff4d4d;
+    --success: #b8b8b8;
+    --btn: rgba(255,255,255,0.08);
+    --btn-hover: rgba(255,255,255,0.14);
+    --green: #f7f7f7;
+    --green-dim: #a8a8a8;
+    --green-dark: #181818;
+    --amber: #c7c7c7;
+    --blue: #c7c7c7;
+    --red: #ff4d4d;
   }
 
   body {
-    background: var(--bg);
-    color: var(--green);
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(255,255,255,0.03), transparent 25%),
+                var(--bg);
+    color: var(--text);
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
     min-height: 100vh;
   }
 
-  .shell { max-width: 1300px; margin: 0 auto; padding: 16px; }
+  .shell { max-width: 1300px; margin: 0 auto; padding: 20px; }
 
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    border: 1px solid var(--border); border-bottom: 2px solid var(--green-dim);
-    padding: 12px 20px; margin-bottom: 16px; background: var(--bg2);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid rgba(255,255,255,0.16);
+    padding: 18px 24px; margin-bottom: 18px; background: var(--bg2);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
   }
 
-  .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: 4px; color: var(--green); }
-  .logo span { color: var(--amber); }
+  .logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--accent); }
+  .logo span { color: var(--muted); }
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 16px;
   }
 
   .panel {
     background: var(--bg2);
     border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.16);
   }
 
   .panel-header {
-    padding: 8px 16px;
+    padding: 16px 18px;
     border-bottom: 1px solid var(--border);
     background: var(--bg3);
     font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--green-dim);
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    color: var(--muted);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .panel-body { padding: 16px; }
+  .panel-body { padding: 18px; }
 
   .count-badge {
     margin-left: 12px;
-    padding: 2px 8px;
+    padding: 4px 10px;
     border: 1px solid var(--border);
     border-radius: 999px;
     font-size: 11px;
-    color: var(--amber);
+    color: var(--muted);
     letter-spacing: 1px;
+    background: rgba(255,255,255,0.03);
   }
 
   .full { grid-column: 1 / -1; }
 
   /* Button Styling */
   .action-btn, .test-btn {
-    background: transparent;
-    border: 1px solid var(--green);
-    color: var(--green);
-    padding: 8px 16px;
+    background: var(--btn);
+    border: 1px solid rgba(255,255,255,0.16);
+    color: var(--text);
+    padding: 10px 18px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 12px;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     cursor: pointer;
     transition: all 0.2s ease;
+    border-radius: 12px;
   }
 
   .action-btn:hover, .test-btn:hover {
-    background: var(--green-dark);
-    box-shadow: 0 0 15px var(--green-glow);
-    border-color: var(--green);
+    background: var(--btn-hover);
+    border-color: rgba(255,255,255,0.24);
   }
 
   .test-btn {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     font-size: 13px;
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   /* Speed Test */
   .speed-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
     margin-bottom: 16px;
   }
 
   .speed-card {
     border: 1px solid var(--border);
-    padding: 14px;
+    padding: 18px;
     text-align: center;
     background: var(--bg3);
+    border-radius: 16px;
   }
 
   .speed-value {
     font-family: 'Orbitron', sans-serif;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
-    color: var(--green);
+    color: var(--accent);
   }
-  .speed-value.amber { color: var(--amber); }
-  .speed-value.blue { color: var(--blue); }
+  .speed-value.amber { color: var(--muted); }
+  .speed-value.blue { color: var(--muted); }
 
   .device-table {
     width: 100%;
@@ -135,10 +152,12 @@
     font-size: 12px;
   }
   th, td {
-    padding: 8px 10px;
-    border-bottom: 1px solid rgba(0,255,65,0.05);
+    padding: 14px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: var(--muted);
   }
-  tr:hover td, tr.new-device { background: rgba(255,184,0,0.08); }
+  tr:hover td { background: rgba(255,255,255,0.05); }
+  tr.new-device { background: rgba(255,255,255,0.04); }
 </style>
 </head>
 <body>
@@ -206,9 +225,24 @@
       </div>
     </div>
 
+    <!-- PACKET LOG -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="label">// PACKET LOG</span>
+        <button onclick="exportPacketLogs()" class="action-btn" style="font-size:11px; padding:6px 10px;">EXPORT PACKETS</button>
+      </div>
+      <div class="panel-body">
+        <div id="packet-log" style="max-height: 220px; overflow-y: auto; font-size:12px; color:var(--text); line-height:1.6;">
+        </div>
+      </div>
+    </div>
+
     <!-- HISTORICAL LOGS -->
     <div class="panel full">
-      <div class="panel-header"><span class="label">// EVENT LOGS</span></div>
+      <div class="panel-header">
+        <span class="label">// EVENT LOGS</span>
+        <button onclick="exportLogs()" class="action-btn" style="font-size:11px; padding:6px 10px;">EXPORT LOGS</button>
+      </div>
       <div class="panel-body">
         <div id="history-log" style="max-height: 220px; overflow-y: auto; font-size:11px; color:var(--green-dim);"></div>
       </div>
@@ -241,28 +275,30 @@ async function checkBackendStatus() {
 // SPEED TEST
 async function runSpeedTest() {
   const btn = document.getElementById('test-btn');
+  const dlEl = document.getElementById('dl-val');
+  const ulEl = document.getElementById('ul-val');
+  const pingEl = document.getElementById('ping-val');
+
   btn.textContent = '[ TESTING... ]';
   btn.disabled = true;
-
-  document.getElementById('dl-val').textContent = '...';
-  document.getElementById('ul-val').textContent = '...';
-  document.getElementById('ping-val').textContent = '...';
+  dlEl.textContent = '...';
+  ulEl.textContent = '...';
+  pingEl.textContent = '...';
 
   try {
-    const pingStart = Date.now();
-    await fetch('/api/ping/8.8.8.8').catch(() => {});
-    document.getElementById('ping-val').textContent = Math.round(Date.now() - pingStart);
+    const res = await fetch('/api/speed-test');
+    if (!res.ok) throw new Error('Speed test failed');
+    const data = await res.json();
 
-    const dlRes = await fetch('https://speed.cloudflare.com/__down?bytes=25000000');
-    const dlBlob = await dlRes.blob();
-    const dlSpeed = ((dlBlob.size * 8) / (1024*1024) / 8).toFixed(1);
-    document.getElementById('dl-val').textContent = dlSpeed;
-
-    const ulStart = Date.now();
-    await fetch('https://httpbin.org/post', {method: 'POST', body: new Uint8Array(1024*1024)});
-    const ulSpeed = (8 / ((Date.now() - ulStart)/1000)).toFixed(1);
-    document.getElementById('ul-val').textContent = ulSpeed;
-  } catch(e) {}
+    pingEl.textContent = data.ping_ms !== null ? data.ping_ms : 'N/A';
+    dlEl.textContent = data.download_mbps !== null ? `${data.download_mbps}` : 'ERR';
+    ulEl.textContent = data.upload_mbps !== null ? `${data.upload_mbps}` : 'ERR';
+  } catch (e) {
+    console.warn('Speed test failed', e);
+    pingEl.textContent = 'ERR';
+    dlEl.textContent = 'ERR';
+    ulEl.textContent = 'ERR';
+  }
 
   btn.textContent = '[ RUN SPEED TEST ]';
   btn.disabled = false;
@@ -280,16 +316,22 @@ async function loadDevices() {
     }
 
     const tbody = document.getElementById('device-tbody');
-    tbody.innerHTML = data.devices.map(dev => `
-      <tr class="${dev.is_new ? 'new-device' : ''}">
-        <td><strong>${dev.ip}</strong></td>
-        <td style="color:var(--green-dim);font-size:11px">${dev.mac}</td>
-        <td style="color:var(--amber);font-size:11px">${dev.vendor}</td>
-        <td>${dev.type}</td>
-        <td><span class="device-status trusted">ONLINE</span></td>
-        <td><button class="action-btn" onclick="pingDevice('${dev.ip}')">PING</button></td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = data.devices.map(dev => {
+      const rowClass = dev.is_new ? 'new-device' : '';
+      const ipStyle = dev.is_suspicious ? 'color:var(--red); font-weight:bold;' : '';
+      const suspiciousFlag = dev.is_suspicious ? 'X' : '';
+      const suspiciousTooltip = dev.is_suspicious ? ` title="${dev.suspicious_reason}"` : '';
+      return `
+        <tr class="${rowClass}">
+          <td><strong style="${ipStyle}">${suspiciousFlag}${dev.ip}</strong></td>
+          <td style="color:var(--green-dim);font-size:11px">${dev.mac}</td>
+          <td style="color:var(--amber);font-size:11px">${dev.vendor}</td>
+          <td>${dev.type}</td>
+          <td><span class="device-status trusted">ONLINE</span></td>
+          <td><button class="action-btn" onclick="pingDevice('${dev.ip}')">PING</button></td>
+        </tr>
+      `;
+    }).join('');
   } catch (e) {
     console.error(e);
   }
@@ -386,6 +428,88 @@ async function loadHistory() {
   }
 }
 
+// PACKET LOGGER (if it wants to work)
+async function loadPackets() {
+  try {
+    const res = await fetch('/api/packets');
+    const data = await res.json();
+    const container = document.getElementById('packet-log');
+    if (data.packets.length === 0) {
+      container.innerHTML = "<div style='color:var(--green-dim)'>Waiting for packet captures...</div>";
+      return;
+    }
+
+    container.innerHTML = data.packets.slice(-20).reverse().map(entry => `
+      <div style="padding:10px 12px; margin-bottom:10px; border-radius:12px; background: rgba(255,255,255,0.04);">
+        <div style="font-size:10px; color:var(--muted);">[${new Date(entry.timestamp).toLocaleTimeString()}]</div>
+        <div style="margin:4px 0; color:var(--text);"><strong>${entry.src}</strong> → <strong>${entry.dst}</strong> <span style="color:var(--muted)">(${entry.length} bytes)</span></div>
+        <div style="font-size:11px; color:var(--muted);">${entry.summary}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    const container = document.getElementById('packet-log');
+    if (container) {
+      container.innerHTML = "<div style='color:var(--red)'>Packet log unavailable</div>";
+    }
+  }
+}
+
+function downloadTextFile(filename, contents) {
+  const blob = new Blob([contents], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function exportLogs() {
+  try {
+    const [historyRes, packetsRes] = await Promise.all([
+      fetch('/api/history'),
+      fetch('/api/packets')
+    ]);
+    const historyData = await historyRes.json();
+    const packetsData = await packetsRes.json();
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+
+    const historyText = historyData.history.map(entry =>
+      `[${new Date(entry.timestamp).toLocaleString()}] ${entry.event}${entry.details ? ' - ' + entry.details : ''}${entry.ip ? ' → ' + entry.ip : ''}`
+    ).join('\n') || 'No event history available.';
+
+    const packetText = packetsData.packets.map(entry =>
+      `[${new Date(entry.timestamp).toLocaleString()}] ${entry.src} → ${entry.dst} (${entry.length} bytes) ${entry.summary}`
+    ).join('\n') || 'No packet log entries available.';
+
+    downloadTextFile(`netscar-events-${timestamp}.log`, historyText);
+    downloadTextFile(`netscar-packets-${timestamp}.log`, packetText);
+  } catch (e) {
+    alert('Export failed: ' + (e.message || 'Unable to fetch logs.'));
+  }
+}
+
+
+async function exportPacketLogs() {
+  try {
+    const res = await fetch('/api/packets');
+    const packetsData = await res.json();
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+
+    const packetText = packetsData.packets.map(entry =>
+      `[${new Date(entry.timestamp).toLocaleString()}] ${entry.src} → ${entry.dst} (${entry.length} bytes) ${entry.summary}`
+    ).join('') || 'No packet log entries available.';
+
+    downloadTextFile(`netscar-packets-${timestamp}.log`, packetText);
+  } catch (e) {
+    alert('Packet export failed: ' + (e.message || 'Unable to fetch packet logs.'));
+  }
+}
+
 // SNIFFER CONTROL
 async function toggleSniffer() {
   const btn = document.getElementById('sniffer-btn');
@@ -417,10 +541,13 @@ window.onload = () => {
   setInterval(checkBackendStatus, 8000);
 
   loadDevices();
-  setInterval(loadDevices, 8000);
+  setInterval(loadDevices, 2000);
 
   loadBandwidth();
   setInterval(loadBandwidth, 4000);
+
+  loadPackets();
+  setInterval(loadPackets, 2000);
 
   loadHistory();
   setInterval(loadHistory, 10000);
