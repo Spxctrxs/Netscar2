@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetScar // Network Scanner v0.1.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00ff41;
+    --green-dim: #00aa2a;
+    --green-dark: #003311;
+    --amber: #ffb800;
+    --red: #ff3333;
+    --blue: #00cfff;
+    --bg: #000000;
+    --bg2: #050f05;
+    --bg3: #0a1a0a;
+    --border: #00ff4144;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  .shell { max-width: 1300px; margin: 0 auto; padding: 16px; }
+
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--border); border-bottom: 2px solid var(--green-dim);
+    padding: 12px 20px; margin-bottom: 16px; background: var(--bg2);
+  }
+
+  .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: 4px; color: var(--green); }
+  .logo span { color: var(--amber); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 12px;
+  }
+
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  .panel-header {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--green-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-body { padding: 16px; }
+
+  .count-badge {
+    margin-left: 12px;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 1px;
+  }
+
+  .full { grid-column: 1 / -1; }
+
+  /* Button Styling */
+  .action-btn, .test-btn {
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 8px 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .action-btn:hover, .test-btn:hover {
+    background: var(--green-dark);
+    box-shadow: 0 0 15px var(--green-glow);
+    border-color: var(--green);
+  }
+
+  .test-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  /* Speed Test */
+  .speed-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .speed-card {
+    border: 1px solid var(--border);
+    padding: 14px;
+    text-align: center;
+    background: var(--bg3);
+  }
+
+  .speed-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .speed-value.amber { color: var(--amber); }
+  .speed-value.blue { color: var(--blue); }
+
+  .device-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th, td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,255,65,0.05);
+  }
+  tr:hover td, tr.new-device { background: rgba(255,184,0,0.08); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="header">
+    <div class="logo">NET<span>SCAR</span> <span style="font-size:13px;color:var(--green-dim);">// v0.1.1</span></div>
+    <div class="header-right">
+      <div><span class="status-dot"></span>SYSTEM ACTIVE</div>
+      <div class="sys-time" id="clock">--:--:--</div>
+      <div id="backend-status" style="color:var(--amber); font-size:12px;">● CONNECTING...</div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- SPEED TEST(To fix does not work) -->
+    <div class="panel full">
+      <div class="panel-header"><span class="label">// INTERNET SPEED TEST</span></div>
+      <div class="panel-body">
+        <div class="speed-grid">
+          <div class="speed-card"><div class="speed-label">↓ DOWNLOAD</div><div class="speed-value" id="dl-val">--.-</div><div style="color:var(--green-dim)">Mbps</div></div>
+          <div class="speed-card"><div class="speed-label">↑ UPLOAD</div><div class="speed-value amber" id="ul-val">--.-</div><div style="color:var(--green-dim)">Mbps</div></div>
+          <div class="speed-card"><div class="speed-label">◎ PING</div><div class="speed-value blue" id="ping-val">---</div><div style="color:var(--green-dim)">ms</div></div>
+        </div>
+        <button onclick="runSpeedTest()" class="test-btn" id="test-btn">[ RUN SPEED TEST ]</button>
+      </div>
+    </div>
+
+    <!-- CONNECTED DEVICES -->
+    <div class="panel full">
+      <div class="panel-header">
+        <div>
+          <span class="label">// CONNECTED DEVICES</span>
+          <span id="device-count" class="count-badge">0 DEVICES</span>
+        </div>
+        <button onclick="startScan()" class="action-btn">SCAN NETWORK</button>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <table class="device-table">
+          <thead>
+            <tr>
+              <th>IP ADDRESS</th>
+              <th>MAC</th>
+              <th>VENDOR</th>
+              <th>TYPE</th>
+              <th>STATUS</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="device-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BANDWIDTH USAGE -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="label">// LIVE BANDWIDTH USAGE (Scapy Demo)</span>
+        <button onclick="toggleSniffer()" class="action-btn" id="sniffer-btn">START SNIFFER</button>
+      </div>
+      <div class="panel-body">
+        <div id="bandwidth-list" style="line-height:1.8; min-height:180px;"></div>
+      </div>
+    </div>
+
+    <!-- HISTORICAL LOGS -->
+    <div class="panel full">
+      <div class="panel-header"><span class="label">// EVENT LOGS</span></div>
+      <div class="panel-body">
+        <div id="history-log" style="max-height: 220px; overflow-y: auto; font-size:11px; color:var(--green-dim);"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ==================== NetScar v0.1.1 - Poopoo version ====================
+
+let snifferRunning = false;
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);
+}
+
+// Backend Status
+async function checkBackendStatus() {
+  try {
+    await fetch('/api/devices');
+    document.getElementById('backend-status').innerHTML = '● BACKEND CONNECTED';
+    document.getElementById('backend-status').style.color = 'var(--green)';
+  } catch (e) {
+    document.getElementById('backend-status').innerHTML = '● BACKEND OFFLINE';
+    document.getElementById('backend-status').style.color = 'var(--red)';
+  }
+}
+
+// SPEED TEST
+async function runSpeedTest() {
+  const btn = document.getElementById('test-btn');
+  btn.textContent = '[ TESTING... ]';
+  btn.disabled = true;
+
+  document.getElementById('dl-val').textContent = '...';
+  document.getElementById('ul-val').textContent = '...';
+  document.getElementById('ping-val').textContent = '...';
+
+  try {
+    const pingStart = Date.now();
+    await fetch('/api/ping/8.8.8.8').catch(() => {});
+    document.getElementById('ping-val').textContent = Math.round(Date.now() - pingStart);
+
+    const dlRes = await fetch('https://speed.cloudflare.com/__down?bytes=25000000');
+    const dlBlob = await dlRes.blob();
+    const dlSpeed = ((dlBlob.size * 8) / (1024*1024) / 8).toFixed(1);
+    document.getElementById('dl-val').textContent = dlSpeed;
+
+    const ulStart = Date.now();
+    await fetch('https://httpbin.org/post', {method: 'POST', body: new Uint8Array(1024*1024)});
+    const ulSpeed = (8 / ((Date.now() - ulStart)/1000)).toFixed(1);
+    document.getElementById('ul-val').textContent = ulSpeed;
+  } catch(e) {}
+
+  btn.textContent = '[ RUN SPEED TEST ]';
+  btn.disabled = false;
+}
+
+// DEVICES
+async function loadDevices() {
+  try {
+    const res = await fetch('/api/devices');
+    const data = await res.json();
+
+    const countEl = document.getElementById('device-count');
+    if (countEl) {
+      countEl.textContent = `${data.devices.length} DEVICES`;
+    }
+
+    const tbody = document.getElementById('device-tbody');
+    tbody.innerHTML = data.devices.map(dev => `
+      <tr class="${dev.is_new ? 'new-device' : ''}">
+        <td><strong>${dev.ip}</strong></td>
+        <td style="color:var(--green-dim);font-size:11px">${dev.mac}</td>
+        <td style="color:var(--amber);font-size:11px">${dev.vendor}</td>
+        <td>${dev.type}</td>
+        <td><span class="device-status trusted">ONLINE</span></td>
+        <td><button class="action-btn" onclick="pingDevice('${dev.ip}')">PING</button></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function startScan() {
+  try {
+    await fetch('/api/scan', { method: 'POST' });
+    setTimeout(loadDevices, 3500);
+  } catch(e) {}
+}
+
+async function pingDevice(ip) {
+  try {
+    const response = await fetch(`/api/ping/${ip}`);
+    const result = await response.json();
+
+    if (!result.success) {
+      alert(`Could not fingerprint ${ip}\n${result.error || 'Host unreachable'}`);
+      return;
+    }
+
+    // Build OS detection display
+    let osInfo = "OS FINGERPRINT RESULTS:\n" + "=".repeat(40) + "\n";
+    
+    if (result.os_guesses && result.os_guesses.length > 0) {
+      osInfo += "\nDETECTED OPERATING SYSTEMS:\n";
+      result.os_guesses.forEach((os, idx) => {
+        osInfo += `${idx + 1}. ${os.name}\n   Confidence: ${os.accuracy}%\n`;
+        if (os.cpe && os.cpe.length > 0) {
+          osInfo += `   CPE: ${os.cpe[0]}\n`;
+        }
+      });
+    } else {
+      osInfo += "No OS detected (host may be filtering probes)\n";
+    }
+
+    // Add detected services
+    if (result.services && result.services.length > 0) {
+      osInfo += "\n🔌 DETECTED SERVICES:\n";
+      result.services.slice(0, 5).forEach(svc => {
+        osInfo += `Port ${svc.port}/${svc.state}: ${svc.name}`;
+        if (svc.product) osInfo += ` (${svc.product}`;
+        if (svc.version) osInfo += ` ${svc.version}`;
+        if (svc.product) osInfo += `)`;
+        osInfo += "\n";
+      });
+      if (result.services.length > 5) {
+        osInfo += `... and ${result.services.length - 5} more services\n`;
+      }
+    }
+
+    osInfo += `\nHost Status: ${result.status.toUpperCase()}`;
+    alert(osInfo);
+  } catch(e) {
+    alert(`Error fingerprinting ${ip}: ${e.message}`);
+  }
+}
+
+// BANDWIDTH
+async function loadBandwidth() {
+  try {
+    const res = await fetch('/api/bandwidth');
+    const data = await res.json();
+    
+    const container = document.getElementById('bandwidth-list');
+    if (data.length === 0) {
+      container.innerHTML = "<div style='color:var(--green-dim)'>Waiting for network traffic...</div>";
+      return;
+    }
+
+    container.innerHTML = data.map(item => `
+      <div style="display:flex; justify-content:space-between; margin:6px 0; padding:4px 0;">
+        <span><strong>${item.ip}</strong></span>
+        <span style="color:var(--amber)">${item.usage_str}</span>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('bandwidth-list').innerHTML = "<div style='color:var(--red)'>Bandwidth monitor not ready</div>";
+  }
+}
+
+// HISTORY
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/history');
+    const data = await res.json();
+    const logDiv = document.getElementById('history-log');
+    logDiv.innerHTML = data.history.slice(-15).map(entry => `
+      <div>[${new Date(entry.timestamp).toLocaleTimeString()}] ${entry.event}${entry.details ? ' - ' + entry.details : ''}${entry.ip ? ' → ' + entry.ip : ''}</div>
+    `).join('');
+  } catch(e) {
+    console.error('History load failed', e);
+  }
+}
+
+// SNIFFER CONTROL
+async function toggleSniffer() {
+  const btn = document.getElementById('sniffer-btn');
+  const action = snifferRunning ? 'stop' : 'start';
+  
+  try {
+    const res = await fetch('/api/sniffer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action })
+    });
+    
+    if (res.ok) {
+      snifferRunning = !snifferRunning;
+      btn.textContent = snifferRunning ? "STOP SNIFFER" : "START SNIFFER";
+      btn.style.color = snifferRunning ? "var(--red)" : "var(--green)";
+    }
+  } catch (e) {
+    alert("Failed to toggle sniffer.");
+  }
+}
+
+// Initialize
+window.onload = () => {
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  checkBackendStatus();
+  setInterval(checkBackendStatus, 8000);
+
+  loadDevices();
+  setInterval(loadDevices, 8000);
+
+  loadBandwidth();
+  setInterval(loadBandwidth, 4000);
+
+  loadHistory();
+  setInterval(loadHistory, 10000);
+
+  setTimeout(startScan, 1500);
+};
+</script>
+</body>
+</html>

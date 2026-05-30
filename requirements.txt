@@ -1,0 +1,5 @@
+flask
+python-nmap
+requests
+waitress
+scapy
