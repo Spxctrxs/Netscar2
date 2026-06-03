@@ -10,141 +10,126 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0f0f0f;
-    --bg2: #181818;
-    --bg3: #222222;
-    --border: rgba(255,255,255,0.08);
-    --text: #f7f7f7;
-    --muted: #a8a8a8;
-    --accent: #ffffff;
-    --danger: #ff4d4d;
-    --success: #b8b8b8;
-    --btn: rgba(255,255,255,0.08);
-    --btn-hover: rgba(255,255,255,0.14);
-    --green: #f7f7f7;
-    --green-dim: #a8a8a8;
-    --green-dark: #181818;
-    --amber: #c7c7c7;
-    --blue: #c7c7c7;
-    --red: #ff4d4d;
+    --green: #00ff41;
+    --green-dim: #00aa2a;
+    --green-dark: #003311;
+    --amber: #ffb800;
+    --red: #ff3333;
+    --blue: #00cfff;
+    --bg: #000000;
+    --bg2: #050f05;
+    --bg3: #0a1a0a;
+    --border: #00ff4144;
   }
 
   body {
-    background: radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent 30%),
-                radial-gradient(circle at bottom right, rgba(255,255,255,0.03), transparent 25%),
-                var(--bg);
-    color: var(--text);
+    background: var(--bg);
+    color: var(--green);
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
     min-height: 100vh;
   }
 
-  .shell { max-width: 1300px; margin: 0 auto; padding: 20px; }
+  .shell { max-width: 1300px; margin: 0 auto; padding: 16px; }
 
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    border: 1px solid var(--border);
-    border-bottom: 2px solid rgba(255,255,255,0.16);
-    padding: 18px 24px; margin-bottom: 18px; background: var(--bg2);
-    border-radius: 18px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    border: 1px solid var(--border); border-bottom: 2px solid var(--green-dim);
+    padding: 12px 20px; margin-bottom: 16px; background: var(--bg2);
   }
 
-  .logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--accent); }
-  .logo span { color: var(--muted); }
+  .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: 4px; color: var(--green); }
+  .logo span { color: var(--amber); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .scan-indicator { font-size: 12px; color: var(--amber); letter-spacing: 1px; }
+  .hidden { display: none !important; }
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 12px;
   }
 
   .panel {
     background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.16);
   }
 
   .panel-header {
-    padding: 16px 18px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--border);
     background: var(--bg3);
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1.8px;
-    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--green-dim);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .panel-body { padding: 18px; }
+  .panel-body { padding: 16px; }
 
   .count-badge {
     margin-left: 12px;
-    padding: 4px 10px;
+    padding: 2px 8px;
     border: 1px solid var(--border);
     border-radius: 999px;
     font-size: 11px;
-    color: var(--muted);
+    color: var(--amber);
     letter-spacing: 1px;
-    background: rgba(255,255,255,0.03);
   }
 
   .full { grid-column: 1 / -1; }
 
   /* Button Styling */
   .action-btn, .test-btn {
-    background: var(--btn);
-    border: 1px solid rgba(255,255,255,0.16);
-    color: var(--text);
-    padding: 10px 18px;
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 8px 16px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 12px;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-radius: 12px;
   }
 
   .action-btn:hover, .test-btn:hover {
-    background: var(--btn-hover);
-    border-color: rgba(255,255,255,0.24);
+    background: var(--green-dark);
+    border-color: var(--green);
   }
 
   .test-btn {
     width: 100%;
-    padding: 14px;
+    padding: 12px;
     font-size: 13px;
-    margin-top: 10px;
+    margin-top: 8px;
   }
 
   /* Speed Test */
   .speed-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
     margin-bottom: 16px;
   }
 
   .speed-card {
     border: 1px solid var(--border);
-    padding: 18px;
+    padding: 14px;
     text-align: center;
     background: var(--bg3);
-    border-radius: 16px;
   }
 
   .speed-value {
     font-family: 'Orbitron', sans-serif;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--green);
   }
-  .speed-value.amber { color: var(--muted); }
-  .speed-value.blue { color: var(--muted); }
+  .speed-value.amber { color: var(--amber); }
+  .speed-value.blue { color: var(--blue); }
 
   .device-table {
     width: 100%;
@@ -152,12 +137,10 @@
     font-size: 12px;
   }
   th, td {
-    padding: 14px 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,255,65,0.05);
   }
-  tr:hover td { background: rgba(255,255,255,0.05); }
-  tr.new-device { background: rgba(255,255,255,0.04); }
+  tr:hover td, tr.new-device { background: rgba(255,184,0,0.08); }
 </style>
 </head>
 <body>
@@ -167,13 +150,16 @@
   <div class="header">
     <div class="logo">NET<span>SCAR</span> <span style="font-size:13px;color:var(--green-dim);">// v0.1.1</span></div>
     <div class="header-right">
+      <button class="action-btn header-tab" id="history-tab-btn" onclick="toggleHistoryTab()">HISTORY</button>
       <div><span class="status-dot"></span>SYSTEM ACTIVE</div>
       <div class="sys-time" id="clock">--:--:--</div>
+      <div class="scan-indicator" id="scan-indicator">NEXT SCAN: 7s</div>
       <div id="backend-status" style="color:var(--amber); font-size:12px;">● CONNECTING...</div>
     </div>
   </div>
 
-  <div class="grid">
+  <div id="dashboard-view">
+    <div class="grid">
 
     <!-- SPEED TEST(To fix does not work) -->
     <div class="panel full">
@@ -248,16 +234,43 @@
       </div>
     </div>
 
+    </div>
   </div>
+
+  <div id="history-view" class="hidden">
+    <div class="panel full">
+      <div class="panel-header">
+        <div>
+          <span class="label">// HISTORY ARCHIVE</span>
+          <span class="count-badge" id="history-count">0 EVENTS</span>
+        </div>
+        <button class="action-btn" onclick="showDashboard()">BACK</button>
+      </div>
+      <div class="panel-body" style="padding: 16px;">
+        <div id="history-list" style="max-height: calc(100vh - 260px); overflow-y: auto; font-size:12px; color:var(--green-dim);"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 // ==================== NetScar v0.1.1 - Poopoo version ====================
 
 let snifferRunning = false;
-
+let scanCountdown = 7;let devices = [];
 function updateClock() {
   document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);
+  updateScanIndicator();
+}
+
+function updateScanIndicator() {
+  const el = document.getElementById('scan-indicator');
+  if (!el) return;
+  el.textContent = `NEXT SCAN: ${scanCountdown}s`;
+  if (scanCountdown > 0) {
+    scanCountdown -= 1;
+  }
 }
 
 // Backend Status
@@ -309,26 +322,29 @@ async function loadDevices() {
   try {
     const res = await fetch('/api/devices');
     const data = await res.json();
+    devices = data.devices || [];
 
     const countEl = document.getElementById('device-count');
     if (countEl) {
-      countEl.textContent = `${data.devices.length} DEVICES`;
+      countEl.textContent = `${devices.length} DEVICES`;
     }
 
     const tbody = document.getElementById('device-tbody');
-    tbody.innerHTML = data.devices.map(dev => {
+    tbody.innerHTML = devices.map(dev => {
       const rowClass = dev.is_new ? 'new-device' : '';
       const ipStyle = dev.is_suspicious ? 'color:var(--red); font-weight:bold;' : '';
       const suspiciousFlag = dev.is_suspicious ? 'X' : '';
-      const suspiciousTooltip = dev.is_suspicious ? ` title="${dev.suspicious_reason}"` : '';
       return `
         <tr class="${rowClass}">
           <td><strong style="${ipStyle}">${suspiciousFlag}${dev.ip}</strong></td>
           <td style="color:var(--green-dim);font-size:11px">${dev.mac}</td>
-          <td style="color:var(--amber);font-size:11px">${dev.vendor}</td>
-          <td>${dev.type}</td>
+          <td style="color:var(--amber);font-size:11px">${dev.vendor || 'Unknown'}</td>
+          <td>${dev.type || 'Unknown'}</td>
           <td><span class="device-status trusted">ONLINE</span></td>
-          <td><button class="action-btn" onclick="pingDevice('${dev.ip}')">PING</button></td>
+          <td>
+            <button class="action-btn" onclick="pingDevice('${dev.ip}')">PING</button>
+            <button class="action-btn" style="margin-left:8px;" onclick="showEditOverride('${dev.ip}')">EDIT</button>
+          </td>
         </tr>
       `;
     }).join('');
@@ -340,8 +356,13 @@ async function loadDevices() {
 async function startScan() {
   try {
     await fetch('/api/scan', { method: 'POST' });
+    scanCountdown = 7;
     setTimeout(loadDevices, 3500);
   } catch(e) {}
+}
+
+async function deauthDevice(ip) {
+  alert(`DE-AUTH is work in progress for ${ip}.`);
 }
 
 async function pingDevice(ip) {
@@ -391,6 +412,53 @@ async function pingDevice(ip) {
   }
 }
 
+async function showEditOverride(ip) {
+  const dev = devices.find(device => device.ip === ip);
+  if (!dev) {
+    return alert('Device not found. Refresh and try again.');
+  }
+
+  const vendor = prompt(`Edit vendor for ${ip}`, dev.vendor || '');
+  if (vendor === null) {
+    return;
+  }
+  const trimmedVendor = vendor.trim();
+  if (!trimmedVendor) {
+    return alert('Vendor cannot be empty.');
+  }
+
+  const type = prompt(`Edit device type for ${ip}`, dev.type || '');
+  if (type === null) {
+    return;
+  }
+  const trimmedType = type.trim();
+  if (!trimmedType) {
+    return alert('Type cannot be empty.');
+  }
+
+  await saveDeviceOverride(ip, trimmedVendor, trimmedType);
+}
+
+async function saveDeviceOverride(ip, vendor, type) {
+  try {
+    const res = await fetch('/api/device-override', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip, vendor, type })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Unable to save override');
+    }
+
+    alert('Override saved for ' + ip);
+    loadDevices();
+  } catch (e) {
+    alert('Failed to save override: ' + (e.message || e));
+  }
+}
+
 // BANDWIDTH
 async function loadBandwidth() {
   try {
@@ -419,12 +487,59 @@ async function loadHistory() {
   try {
     const res = await fetch('/api/history');
     const data = await res.json();
-    const logDiv = document.getElementById('history-log');
-    logDiv.innerHTML = data.history.slice(-15).map(entry => `
-      <div>[${new Date(entry.timestamp).toLocaleTimeString()}] ${entry.event}${entry.details ? ' - ' + entry.details : ''}${entry.ip ? ' → ' + entry.ip : ''}</div>
-    `).join('');
+    const historyDiv = document.getElementById('history-list');
+    const historyLogEl = document.getElementById('history-log');
+    const countEl = document.getElementById('history-count');
+
+    const entries = (data.history || []).slice().reverse();
+    const recentEntries = entries.slice(0, 20);
+
+    const formatEntry = entry => `
+      <div style="padding:10px 0; border-bottom:1px solid rgba(0,255,65,0.06);">
+        <div style="color:var(--amber); font-size:11px;">${new Date(entry.timestamp).toLocaleString()}</div>
+        <div>${entry.event}${entry.details ? ' - ' + entry.details : ''}${entry.ip ? ' → ' + entry.ip : ''}</div>
+      </div>
+    `;
+
+    if (historyLogEl) {
+      historyLogEl.innerHTML = recentEntries.length > 0
+        ? recentEntries.map(formatEntry).join('')
+        : '<div style="color:var(--green-dim)">No recent events.</div>';
+    }
+
+    if (historyDiv) {
+      historyDiv.innerHTML = entries.length > 0
+        ? entries.map(formatEntry).join('')
+        : '<div style="color:var(--green-dim)">No event history available.</div>';
+    }
+
+    if (countEl) {
+      countEl.textContent = `${entries.length} EVENTS`;
+    }
   } catch(e) {
     console.error('History load failed', e);
+  }
+}
+
+function showHistory() {
+  document.getElementById('dashboard-view').style.display = 'none';
+  document.getElementById('history-view').style.display = 'block';
+  document.getElementById('history-tab-btn').textContent = 'DASHBOARD';
+  loadHistory();
+}
+
+function showDashboard() {
+  document.getElementById('history-view').style.display = 'none';
+  document.getElementById('dashboard-view').style.display = 'block';
+  document.getElementById('history-tab-btn').textContent = 'HISTORY';
+}
+
+function toggleHistoryTab() {
+  const historyView = document.getElementById('history-view');
+  if (historyView.style.display === 'block') {
+    showDashboard();
+  } else {
+    showHistory();
   }
 }
 
@@ -532,10 +647,54 @@ async function toggleSniffer() {
   }
 }
 
+async function exportLogs() {
+  try {
+    const [historyRes, packetsRes] = await Promise.all([
+      fetch('/api/history'),
+      fetch('/api/packets')
+    ]);
+    const historyData = await historyRes.json();
+    const packetsData = await packetsRes.json();
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+
+    const historyText = historyData.history.map(entry =>
+      `[${new Date(entry.timestamp).toLocaleString()}] ${entry.event}${entry.details ? ' - ' + entry.details : ''}${entry.ip ? ' → ' + entry.ip : ''}`
+    ).join('\n') || 'No event history available.';
+
+    const packetText = packetsData.packets.map(entry =>
+      `[${new Date(entry.timestamp).toLocaleString()}] ${entry.src} → ${entry.dst} (${entry.length} bytes) ${entry.summary}`
+    ).join('\n') || 'No packet log entries available.';
+
+    downloadTextFile(`netscar-events-${timestamp}.log`, historyText);
+    downloadTextFile(`netscar-packets-${timestamp}.log`, packetText);
+  } catch (e) {
+    alert('Export failed: ' + (e.message || 'Unable to fetch logs.'));
+  }
+}
+
+async function exportPacketLogs() {
+  try {
+    const res = await fetch('/api/packets');
+    const packetsData = await res.json();
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+
+    const packetText = packetsData.packets.map(entry =>
+      `[${new Date(entry.timestamp).toLocaleString()}] ${entry.src} → ${entry.dst} (${entry.length} bytes) ${entry.summary}`
+    ).join('') || 'No packet log entries available.';
+
+    downloadTextFile(`netscar-packets-${timestamp}.log`, packetText);
+  } catch (e) {
+    alert('Packet export failed: ' + (e.message || 'Unable to fetch packet logs.'));
+  }
+}
+
 // Initialize
 window.onload = () => {
   updateClock();
   setInterval(updateClock, 1000);
+  setInterval(updateScanIndicator, 1000);
 
   checkBackendStatus();
   setInterval(checkBackendStatus, 8000);
@@ -552,7 +711,7 @@ window.onload = () => {
   loadHistory();
   setInterval(loadHistory, 10000);
 
-  setTimeout(startScan, 1500);
+  setInterval(startScan, 7000);
 };
 </script>
 </body>

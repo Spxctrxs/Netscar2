@@ -22,6 +22,7 @@ packet_log = []
 packet_log_lock = threading.Lock()
 suspicious_ips = {}  # Track suspicious activity by IP
 packet_counts_by_ip = defaultdict(int)  # Track packet frequency
+device_overrides = {}
 
 sniffer_thread = None
 sniffer_running = False
@@ -44,6 +45,24 @@ def save_history():
         pass
 
 
+def load_overrides():
+    global device_overrides
+    try:
+        if os.path.exists('device_overrides.json'):
+            with open('device_overrides.json', 'r') as f:
+                device_overrides = json.load(f)
+    except:
+        device_overrides = {}
+
+
+def save_overrides():
+    try:
+        with open('device_overrides.json', 'w') as f:
+            json.dump(device_overrides, f)
+    except:
+        pass
+
+
 def add_history(event, ip="", details=""):
     history.append({
         "timestamp": datetime.now().isoformat(),
@@ -54,11 +73,12 @@ def add_history(event, ip="", details=""):
     save_history()
 
 load_history()
+load_overrides()
 
 # ==================== BANDWIDTH SNIFFER ====================
 def is_suspicious_vendor(vendor):
     """Check if vendor name indicates a scanning/hacking tool."""
-    if not vendor or vendor == "Unknown":
+    if not vendor or 'unknown' in vendor.lower():
         return False
     v = vendor.lower()
     suspicious_keywords = ['kali', 'metasploit', 'parrot', 'blackarch', 'sniffing', 'wireshark', 'tcpdump', 'nmap', 'scanning', 'attack', 'penetration']
@@ -132,25 +152,96 @@ def get_local_subnet():
         pass
     return "192.168.1.0/24"
 
-def get_vendor_from_mac(mac):
-    if mac == "Unknown" or not mac:
-        return "Unknown"
+OUI_VENDOR_MAP = {
+    '00:1A:2B': 'Apple, Inc.',
+    'F4:5C:89': 'Google, Inc.',
+    '74:DA:38': 'Amazon Technologies',
+    '3C:5A:B4': 'Amazon Technologies',
+    'B8:27:EB': 'Raspberry Pi Trading',
+    'FC:DB:B3': 'TP-LINK TECHNOLOGIES CO.,LTD.',
+    'CC:2D:E0': 'NETGEAR, Inc.',
+    'D8:9E:6F': 'Google, Inc.',
+    'A4:5E:60': 'Apple, Inc.',
+    '00:1B:63': 'Cisco Systems, Inc.',
+    '00:1E:C2': 'Belkin International, Inc.',
+    '98:5E:0C': 'LG Electronics',
+    'F0:D1:A9': 'Samsung Electronics',
+    'A8:5E:45': 'Microsoft Corporation',
+    '00:1C:BF': 'Dell Inc.',
+    '00:23:AE': 'Hewlett Packard',
+    '00:50:56': 'VMware, Inc.',
+    '00:0C:29': 'VMware, Inc.',
+    '08:00:27': 'Oracle VirtualBox',
+    '30:83:98': 'Samsung Electronics',
+    '44:65:0D': 'Samsung Electronics',
+    '34:BE:0B': 'Xiaomi Communications Co Ltd',
+    'A0:0B:BA': 'Philips Lighting BV',
+    '00:25:9C': 'Intel Corporate',
+    '7C:49:EB': 'Huawei Technologies Co., Ltd.',
+    '64:16:66': 'Cisco Systems, Inc.',
+    '5C:AA:FD': 'Sony Mobile Communications AB',
+    '48:5B:39': 'ASUSTek COMPUTER INC.',
+}
+
+def normalize_mac(mac):
+    if not mac:
+        return None
+    mac = mac.strip().upper().replace('-', ':')
+    if ':' in mac:
+        parts = mac.split(':')
+        if len(parts) == 6 and all(len(part) == 2 for part in parts):
+            return ':'.join(parts)
+    cleaned = ''.join(ch for ch in mac if ch.isalnum())
+    if len(cleaned) == 12:
+        return ':'.join(cleaned[i:i+2] for i in range(0, 12, 2))
+    return mac
+
+def get_oui_vendor(mac):
+    mac = normalize_mac(mac)
+    if not mac or len(mac) < 8:
+        return None
+    prefix = mac[:8]
+    return OUI_VENDOR_MAP.get(prefix)
+
+def get_vendor_from_mac(mac, nmap_vendor=None):
+    if nmap_vendor and isinstance(nmap_vendor, str) and nmap_vendor.strip() and 'unknown' not in nmap_vendor.lower():
+        return nmap_vendor.strip()[:45]
+
+    normalized_mac = normalize_mac(mac)
+    if not normalized_mac or normalized_mac == 'UNKNOWN' or normalized_mac == '00:00:00:00:00:00':
+        return "Unknown Vendor"
+
+    local_vendor = get_oui_vendor(normalized_mac)
+    if local_vendor:
+        return local_vendor
+
     try:
-        r = requests.get(f"https://api.macvendors.com/{mac}", timeout=2)
+        r = requests.get(f"https://api.macvendors.com/{normalized_mac}", timeout=2)
         if r.status_code == 200:
-            return r.text.strip()[:45]
+            value = r.text.strip()
+            if value and 'not found' not in value.lower() and 'unknown' not in value.lower():
+                return value[:45]
     except:
         pass
+
     return "Unknown Vendor"
 
 def get_device_type(vendor):
-    if not vendor or vendor == "Unknown":
+    if not vendor or 'unknown' in vendor.lower():
         return "Unknown Device"
     v = vendor.lower()
-    if any(x in v for x in ['apple','iphone','macbook','ipad']): return "Apple Device"
-    if any(x in v for x in ['samsung','huawei','xiaomi','oppo']): return "Android Device"
-    if any(x in v for x in ['tp-link','tplink','netgear','asus','linksys','cisco','d-link','dlink','zyxel','tenda','belkin','trendnet','ubiquiti','ubiquiti networks','mikrotik','aruba','netis']): return "Router / AP"
-    if any(x in v for x in ['intel','dell','hp','lenovo']): return "Computer"
+    if any(x in v for x in ['apple', 'iphone', 'macbook', 'ipad', 'airpods', 'imac', 'mac mini']):
+        return "Apple Device"
+    if any(x in v for x in ['samsung', 'huawei', 'xiaomi', 'oppo', 'oneplus', 'sony', 'google', 'motorola', 'lg', 'htc', 'xiaomi']):
+        return "Android / Mobile Device"
+    if any(x in v for x in ['tp-link', 'tplink', 'netgear', 'asus', 'linksys', 'cisco', 'd-link', 'dlink', 'zyxel', 'tenda', 'belkin', 'trendnet', 'ubiquiti', 'mikrotik', 'aruba', 'netis', 'comtrend', 'huawei']):
+        return "Router / AP"
+    if any(x in v for x in ['amazon', 'roku', 'google', 'philips', 'honeywell', 'bosch', 'sonos', 'nest', 'ecobee', 'ring', 'smart', 'home', 'xiaomi', 'simba', 'hikvision']):
+        return "Smart Home / IoT Device"
+    if any(x in v for x in ['intel', 'dell', 'hp', 'hewlett packard', 'lenovo', 'acer', 'asus', 'msi', 'microsoft', 'gigabyte', 'evga']):
+        return "Computer"
+    if any(x in v for x in ['raspberry', 'raspberry pi', 'arduino', 'adtran', 'espressif', 'broadcom']):
+        return "Single-board Computer"
     return "Unknown Device"
 
 def scan_network():
@@ -162,34 +253,44 @@ def scan_network():
     try:
         nm.scan(hosts=subnet, arguments='-sn -T4')
         new_devices = []
-        for host in nm.all_hosts():
-            if nm[host].state() != 'up': continue
-            mac = nm[host]['addresses'].get('mac', 'Unknown')
-            vendor = get_vendor_from_mac(mac)
-            device_type = get_device_type(vendor)
+        for host_ip in nm.all_hosts():
+            host_data = nm[host_ip]
+            if host_data.state() != 'up':
+                continue
+
+            mac = host_data['addresses'].get('mac', 'Unknown')
+            nmap_vendor = None
+            if 'vendor' in host_data and isinstance(host_data['vendor'], dict):
+                nmap_vendor = next(iter(host_data['vendor'].values()), None)
+
+            vendor = get_vendor_from_mac(mac, nmap_vendor)
+            override = device_overrides.get(host_ip, {})
+            if override.get('vendor'):
+                vendor = override['vendor']
+            device_type = override.get('type') or get_device_type(vendor)
             is_new = mac != "Unknown" and mac not in known_macs
-            is_suspicious = is_suspicious_vendor(vendor) or host in suspicious_ips
+            is_suspicious = is_suspicious_vendor(vendor) or host_ip in suspicious_ips
             suspicious_reason = ""
             
             if is_suspicious_vendor(vendor):
                 suspicious_reason = "Suspicious vendor detected"
-            if host in suspicious_ips:
-                suspicious_reason = suspicious_ips[host].get("reason", "Suspicious activity detected")
+            if host_ip in suspicious_ips:
+                suspicious_reason = suspicious_ips[host_ip].get("reason", "Suspicious activity detected")
 
             if is_new and mac != "Unknown":
                 known_macs.add(mac)
                 history.append({
                     "timestamp": datetime.now().isoformat(),
                     "event": "new_device",
-                    "ip": host,
+                    "ip": host_ip,
                     "vendor": vendor
                 })
                 save_history()
                 if is_suspicious:
-                    add_history("suspicious_device", host, suspicious_reason)
+                    add_history("suspicious_device", host_ip, suspicious_reason)
 
             new_devices.append({
-                "ip": host,
+                "ip": host_ip,
                 "mac": mac,
                 "vendor": vendor,
                 "type": device_type,
@@ -219,6 +320,29 @@ def get_devices():
         "devices": devices,
         "last_scan": last_scan.strftime("%H:%M:%S") if last_scan else "Never"
     })
+
+@app.route('/api/device-override', methods=['POST'])
+def set_device_override():
+    data = request.get_json(force=True, silent=True) or {}
+    ip = data.get('ip')
+    vendor = data.get('vendor', '').strip()
+    device_type = data.get('type', '').strip()
+
+    if not ip or not vendor or not device_type:
+        return jsonify({"status": "error", "error": "IP, vendor, and type are required."}), 400
+
+    device_overrides[ip] = {
+        "vendor": vendor,
+        "type": device_type
+    }
+    for device in devices:
+        if device.get('ip') == ip:
+            device['vendor'] = vendor
+            device['type'] = device_type
+            break
+    save_overrides()
+    add_history("device_override", ip, f"Vendor={vendor}, Type={device_type}")
+    return jsonify({"status": "ok", "override": device_overrides[ip]})
 
 @app.route('/api/history')
 def get_history():
